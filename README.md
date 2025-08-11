@@ -18,28 +18,28 @@ A robust Bash utility script that automatically starts `ssh-agent` and loads all
 
 ```bash
 # Source the script to load keys with output
-source install-my-ssh/ssh-agent.sh
+source ssh-agent-setup.sh
 
 # Or execute directly
-./install-my-ssh/ssh-agent.sh
+./ssh-agent-setup.sh
 ```
 
 ### Silent Mode
 
 ```bash
 # Load keys without output messages
-source install-my-ssh/ssh-agent.sh --mute
-source install-my-ssh/ssh-agent.sh -m
+source ssh-agent-setup.sh --mute
+source ssh-agent-setup.sh -m
 ```
 
 ### Help and Version
 
 ```bash
 # Display help
-./install-my-ssh/ssh-agent.sh --help
+./ssh-agent-setup.sh --help
 
 # Display version
-./install-my-ssh/ssh-agent.sh --version
+./ssh-agent-setup.sh --version
 ```
 
 ## Command Line Options
@@ -77,7 +77,7 @@ The script automatically excludes these common SSH files:
 ### Standard Workflow
 
 ```bash
-$ source install-my-ssh/ssh-agent.sh
+$ source ssh-agent-setup.sh
 Starting ssh-agent...
 ssh-agent started successfully
 Loading SSH keys from /home/user/.ssh...
@@ -91,7 +91,7 @@ SSH agent setup complete
 ### Silent Mode
 
 ```bash
-$ source install-my-ssh/ssh-agent.sh --mute
+$ source ssh-agent-setup.sh --mute
 # No output, but keys are loaded
 ```
 
@@ -101,8 +101,8 @@ Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
 # Auto-load SSH keys on shell startup
-if [ -f ~/path/to/install-my-ssh/ssh-agent.sh ]; then
-    source ~/path/to/install-my-ssh/ssh-agent.sh --mute
+if [ -f ~/path/to/ssh-agent-setup.sh ]; then
+    source ~/path/to/ssh-agent-setup.sh --mute
 fi
 ```
 
@@ -151,7 +151,7 @@ chmod 600 ~/.ssh/id_*
 
 ```bash
 # Make script executable
-chmod +x install-my-ssh/ssh-agent.sh
+chmod +x ssh-agent-setup.sh
 ```
 
 ## Contributing

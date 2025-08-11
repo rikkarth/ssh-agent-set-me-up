@@ -26,9 +26,6 @@
 #     1.0.0
 #=============================================================================
 
-# Note: We don't use 'set -euo pipefail' because this script is typically sourced
-# and strict error handling can exit the user's shell session unexpectedly
-
 #=============================================================================
 # GLOBAL VARIABLES
 #=============================================================================

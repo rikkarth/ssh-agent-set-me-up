@@ -1,16 +1,23 @@
-# SSH Agent Manager
+# SSH Agent Setup Utility
 
-A robust Bash utility script that automatically starts `ssh-agent` and loads all SSH private keys from your `~/.ssh` directory.
+A robust Bash utility script that automatically sets up SSH agent and loads all SSH private keys from your `~/.ssh` directory. Perfect for development environments and automated workflows.
 
 ## Features
 
-- **Automatic SSH Agent Management**: Starts `ssh-agent` if not already running
+- **Automatic SSH Agent Setup**: Starts `ssh-agent` if not already running
 - **Bulk Key Loading**: Discovers and loads all SSH private keys from `~/.ssh`
 - **Smart Filtering**: Automatically excludes public keys (`.pub`) and configuration files
 - **Duplicate Prevention**: Prevents loading the same key multiple times
 - **Silent Mode**: Optional mute flag for script automation
-- **Error Handling**: Robust error handling with proper exit codes
-- **Best Practices**: Follows shell scripting best practices with comprehensive documentation
+
+## Quick Start
+
+```bash
+# Download the script
+wget https://raw.githubusercontent.com/rikkarth/ssh-agent-set-me-up/refs/heads/master/src/ssh-agent-setup.sh
+
+source ssh-agent-setup.sh
+```
 
 ## Usage
 
@@ -52,6 +59,8 @@ source ssh-agent-setup.sh -m
 
 ## How It Works
 
+The SSH setup process follows these steps:
+
 1. **SSH Agent Check**: Verifies if `ssh-agent` is running via `$SSH_AUTH_SOCK`
 2. **Agent Startup**: Starts `ssh-agent` if not already running
 3. **Key Discovery**: Scans `~/.ssh/` directory for potential private key files
@@ -60,7 +69,7 @@ source ssh-agent-setup.sh -m
    - Configuration files (`config`, `known_hosts`, `authorized_keys`, etc.)
    - Already processed keys (prevents duplicates)
 5. **Key Loading**: Attempts to load each discovered private key
-6. **Reporting**: Provides feedback on successfully loaded keys
+6. **Setup Complete**: Reports success and loaded key count
 
 ## File Exclusions
 
@@ -74,36 +83,57 @@ The script automatically excludes these common SSH files:
 
 ## Examples
 
-### Standard Workflow
+### Standard Setup Workflow
 
 ```bash
-$ source ssh-agent-setup.sh
+$ source src/ssh-agent-setup.sh
 Starting ssh-agent...
 ssh-agent started successfully
 Loading SSH keys from /home/user/.ssh...
 ✓ Added SSH key: id_ed25519
 ✓ Added SSH key: id_rsa
-✓ Added SSH key: github_key
+✓ Added SSH key: github_deploy_key
 Successfully loaded 3 SSH key(s)
 SSH agent setup complete
 ```
 
-### Silent Mode
+### Silent Mode Setup
 
 ```bash
-$ source ssh-agent-setup.sh --mute
-# No output, but keys are loaded
+$ source src/ssh-agent-setup.sh --mute
+# No output, but keys are loaded silently
 ```
 
 ### Integration in Shell Profile
 
-Add to your `~/.bashrc` or `~/.zshrc`:
+Add to your `~/.bashrc`, `~/.zshrc`, or shell profile:
 
 ```bash
-# Auto-load SSH keys on shell startup
-if [ -f ~/path/to/ssh-agent-setup.sh ]; then
-    source ~/path/to/ssh-agent-setup.sh --mute
+# Auto-setup SSH keys on shell startup
+if [ -f ~/ssh-agent-setup.sh ]; then
+    source ~/ssh-agent-setup.sh --mute
 fi
+```
+
+### Development Environment Setup
+
+```bash
+# In your project's setup script
+echo "Setting up SSH environment..."
+source path/to/ssh-agent-setup.sh --mute
+echo "SSH setup complete, ready for git operations"
+```
+
+## Installation
+
+### Manual Installation
+
+### Git Clone
+
+```bash
+git clone git@github.com:rikkarth/ssh-agent-set-me-up.git
+cd ssh-agent-set-me-up
+source src/ssh-agent-setup.sh
 ```
 
 ## Requirements
@@ -111,15 +141,7 @@ fi
 - **Bash**: Version 4.0 or higher (for associative arrays)
 - **OpenSSH**: Standard `ssh-agent` and `ssh-add` utilities
 - **Permissions**: Read access to `~/.ssh` directory
-
-## Error Handling
-
-The script includes comprehensive error handling:
-
-- **Missing SSH Directory**: Reports error if `~/.ssh` doesn't exist
-- **Invalid Arguments**: Shows usage help for unknown options
-- **Key Loading Failures**: Silently skips invalid key files
-- **Permission Issues**: Handles permission errors gracefully
+- **SSH Keys**: At least one SSH private key in `~/.ssh`
 
 ## Security Considerations
 
@@ -127,6 +149,7 @@ The script includes comprehensive error handling:
 - **No Hardcoded Paths**: Uses standard SSH directory locations
 - **Error Suppression**: Prevents sensitive key information from appearing in error messages
 - **Permission Respect**: Respects file system permissions
+- **No Global Pollution**: Doesn't leave variables in your shell environment
 
 ## Troubleshooting
 
@@ -135,9 +158,21 @@ The script includes comprehensive error handling:
 If no keys are added, check:
 
 1. **SSH Directory**: Ensure `~/.ssh` exists and contains private keys
+   ```bash
+   ls -la ~/.ssh/
+   ```
+
 2. **Permissions**: Verify read access to key files
+   ```bash
+   chmod 700 ~/.ssh
+   chmod 600 ~/.ssh/id_*
+   ```
+
 3. **Key Format**: Ensure keys are in standard OpenSSH format
-4. **Agent Status**: Check if keys are already loaded with `ssh-add -l`
+4. **Agent Status**: Check if keys are already loaded
+   ```bash
+   ssh-add -l
+   ```
 
 ### Permission Denied
 
@@ -145,6 +180,9 @@ If no keys are added, check:
 # Fix SSH directory permissions
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/id_*
+
+# Ensure you own the files
+chown -R $USER:$USER ~/.ssh/
 ```
 
 ### Script Not Found
@@ -152,21 +190,38 @@ chmod 600 ~/.ssh/id_*
 ```bash
 # Make script executable
 chmod +x ssh-agent-setup.sh
+
+# Check file exists
+ls -la ssh-agent-setup.sh
 ```
+
+### Agent Already Running
+
+If you see "ssh-agent already running", this is normal behavior. The script detected an existing agent and used it.
+
+## Use Cases
+
+- **Development Setup**: Automatically load keys when starting development work
+- **CI/CD Pipelines**: Setup SSH access in automated environments
+- **Remote Server Setup**: Bootstrap SSH access on new servers
+- **Docker Containers**: Setup SSH access in containerized environments
+- **Shell Profiles**: Automatic SSH setup on login
 
 ## Contributing
 
-When contributing to this script:
+When contributing to this project:
 
-1. Follow existing code style and documentation standards
-2. Add tests for new functionality
-3. Update documentation for any changes
-4. Ensure backward compatibility
+1. Fork the repository
+2. Create a feature branch
+3. Follow existing code style and documentation standards
+4. Update documentation for any changes
+5. Ensure backward compatibility
+6. Submit a pull request
 
 ## License
 
-This script is provided as-is for personal and professional use. Modify and distribute freely while maintaining attribution.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Version History
+## Author
 
-- **v1.0**: Initial release with comprehensive key loading and documentation
+**Ricardo Mendes** - ricardo.mendes@streambit.dev

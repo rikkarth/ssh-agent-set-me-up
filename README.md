@@ -12,11 +12,9 @@ A robust Bash utility script that automatically sets up SSH agent and loads all 
 
 ## Quick Start
 
+Download the script
 ```bash
-# Download the script
 wget https://raw.githubusercontent.com/rikkarth/ssh-agent-set-me-up/refs/heads/master/src/ssh-agent-setup.sh
-
-source ssh-agent-setup.sh
 ```
 
 ## Usage

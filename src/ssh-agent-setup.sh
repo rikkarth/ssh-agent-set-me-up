@@ -23,7 +23,7 @@
 # AUTHOR:
 #     ricardo.mendes@streambit.dev
 # VERSION:
-#     1.1.0
+#     0.0.2
 #=============================================================================
 
 #=============================================================================
@@ -79,7 +79,7 @@ EOF
 #
 version() {
     local script_name="$(basename "${BASH_SOURCE[0]}" 2>/dev/null || echo "ssh-agent-setup.sh")"
-    echo "$script_name version 1.1.0"
+    echo "$script_name v0.0.2"
 }
 
 ##

@@ -1,10 +1,10 @@
-# SSH Agent Setup Utility
+# ssh-agent Setup Utility
 
-A robust Bash utility script that automatically sets up SSH agent and loads all SSH private keys from your `~/.ssh` directory. Perfect for development environments and automated workflows.
+A robust Bash utility script that automatically sets up ssh-agent and loads all SSH private keys from your `~/.ssh` directory. Perfect for development environments and automated workflows.
 
 ## Features
 
-- **Automatic SSH Agent Setup**: Starts `ssh-agent` if not already running
+- **Automatic ssh-agent Setup**: Starts `ssh-agent` if not already running
 - **Bulk Key Loading**: Discovers and loads all SSH private keys from `~/.ssh`
 - **Smart Filtering**: Automatically excludes public keys (`.pub`) and configuration files
 - **Duplicate Prevention**: Prevents loading the same key multiple times
@@ -59,7 +59,7 @@ source ssh-agent-setup.sh -m
 
 The SSH setup process follows these steps:
 
-1. **SSH Agent Check**: Verifies if `ssh-agent` is running via `$SSH_AUTH_SOCK`
+1. **ssh-agent Check**: Verifies if `ssh-agent` is running via `$SSH_AUTH_SOCK`
 2. **Agent Startup**: Starts `ssh-agent` if not already running
 3. **Key Discovery**: Scans `~/.ssh/` directory for potential private key files
 4. **Smart Filtering**: Excludes:
@@ -92,7 +92,7 @@ Loading SSH keys from /home/user/.ssh...
 ✓ Added SSH key: id_rsa
 ✓ Added SSH key: github_deploy_key
 Successfully loaded 3 SSH key(s)
-SSH agent setup complete
+ssh-agent setup complete
 ```
 
 ### Silent Mode Setup
@@ -204,17 +204,6 @@ If you see "ssh-agent already running", this is normal behavior. The script dete
 - **Remote Server Setup**: Bootstrap SSH access on new servers
 - **Docker Containers**: Setup SSH access in containerized environments
 - **Shell Profiles**: Automatic SSH setup on login
-
-## Contributing
-
-When contributing to this project:
-
-1. Fork the repository
-2. Create a feature branch
-3. Follow existing code style and documentation standards
-4. Update documentation for any changes
-5. Ensure backward compatibility
-6. Submit a pull request
 
 ## License
 

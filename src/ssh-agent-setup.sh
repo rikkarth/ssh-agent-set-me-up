@@ -130,13 +130,13 @@ is_excluded_file() {
 }
 
 ##
-# Find the SSH agent socket for the current user
+# Find the ssh-agent socket for the current user
 # Arguments:
 #   None
-# Outputs the path to the SSH agent socket if found
+# Outputs the path to the ssh-agent socket if found
 #
 find_ssh_agent_socket() {
-    # Find all SSH agent sockets in /tmp for the current user
+    # Find all ssh-agent sockets in /tmp for the current user
     local ssh_agent_sockets
     ssh_agent_sockets=$(find /tmp -type s -name "agent.*" -user "$USER" 2>/dev/null)
 
@@ -150,13 +150,13 @@ find_ssh_agent_socket() {
 }
 
 ##
-# Check if an SSH agent is running and set SSH_AUTH_SOCK
+# Check if a ssh-agent is running and set SSH_AUTH_SOCK
 # Arguments:
 #   None
 # Sets SSH_AUTH_SOCK if an agent is found
 # Returns:
-#   0 if SSH agent is running and socket is set
-#   1 if no SSH agent found
+#   0 if ssh-agent is running and socket is set
+#   1 if no ssh-agent found
 #
 setup_ssh_agent_socket() {
     # First, check if SSH_AUTH_SOCK is already set and valid
@@ -165,7 +165,7 @@ setup_ssh_agent_socket() {
         return 0
     fi
 
-    # Find an existing SSH agent socket
+    # Find an existing ssh-agent socket
     local agent_socket
     if agent_socket=$(find_ssh_agent_socket); then
         # Verify the socket is valid
@@ -173,13 +173,13 @@ setup_ssh_agent_socket() {
 
         # Optional: try to list keys to further validate the socket
         if ssh-add -l >/dev/null 2>&1; then
-            log_info "SSH agent socket set: $SSH_AUTH_SOCK"
+            log_info "ssh-agent socket set: $SSH_AUTH_SOCK"
             return 0
         fi
     fi
 
-    # No valid SSH agent socket found
-    log_info "No SSH agent socket found"
+    # No valid ssh-agent socket found
+    log_info "No ssh-agent socket found"
     return 1
 }
 
@@ -188,7 +188,7 @@ setup_ssh_agent_socket() {
 # Sets SSH_AUTH_SOCK environment variable
 #
 start_ssh_agent() {
-    # Try to set up the existing SSH agent socket
+    # Try to set up the existing ssh-agent socket
     if setup_ssh_agent_socket; then
         return 0
     fi
@@ -312,7 +312,7 @@ main() {
     # Load SSH keys
     load_ssh_keys
 
-    log_info "SSH agent setup complete"
+    log_info "ssh-agent setup complete"
 }
 
 #=============================================================================

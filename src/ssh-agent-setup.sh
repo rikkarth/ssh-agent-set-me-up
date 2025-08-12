@@ -79,7 +79,7 @@ EOF
 #
 version() {
     local script_name="$(basename "${BASH_SOURCE[0]}" 2>/dev/null || echo "ssh-agent-setup.sh")"
-    echo "$script_name version 1.0.0"
+    echo "$script_name version 1.1.0"
 }
 
 ##
@@ -129,37 +129,58 @@ is_excluded_file() {
     return 1
 }
 
-#=============================================================================
-# MAIN FUNCTIONS
-#=============================================================================
+##
+# Find the SSH agent socket for the current user
+# Arguments:
+#   None
+# Outputs the path to the SSH agent socket if found
+#
+find_ssh_agent_socket() {
+    # Find all SSH agent sockets in /tmp for the current user
+    local ssh_agent_sockets
+    ssh_agent_sockets=$(find /tmp -type s -name "agent.*" -user "$USER" 2>/dev/null)
+
+    # If multiple sockets found, use the most recently modified
+    if [[ -n "$ssh_agent_sockets" ]]; then
+        echo "$ssh_agent_sockets" | xargs -I {} stat -c '%Y %n' {} | sort -rn | head -n 1 | cut -d' ' -f2-
+        return 0
+    fi
+
+    return 1
+}
 
 ##
-# Parse command line arguments
+# Check if an SSH agent is running and set SSH_AUTH_SOCK
 # Arguments:
-#   $@ - All command line arguments
+#   None
+# Sets SSH_AUTH_SOCK if an agent is found
+# Returns:
+#   0 if SSH agent is running and socket is set
+#   1 if no SSH agent found
 #
-parse_arguments() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            -m|--mute)
-                MUTE=true
-                shift
-                ;;
-            -h|--help)
-                usage
-                exit 0
-                ;;
-            -v|--version)
-                version
-                exit 0
-                ;;
-            *)
-                log_error "Unknown option: $1"
-                usage >&2
-                exit 1
-                ;;
-        esac
-    done
+setup_ssh_agent_socket() {
+    # First, check if SSH_AUTH_SOCK is already set and valid
+    if [[ -n "${SSH_AUTH_SOCK:-}" ]] && [[ -S "$SSH_AUTH_SOCK" ]]; then
+        log_info "Existing SSH_AUTH_SOCK is valid: $SSH_AUTH_SOCK"
+        return 0
+    fi
+
+    # Find an existing SSH agent socket
+    local agent_socket
+    if agent_socket=$(find_ssh_agent_socket); then
+        # Verify the socket is valid
+        export SSH_AUTH_SOCK="$agent_socket"
+
+        # Optional: try to list keys to further validate the socket
+        if ssh-add -l >/dev/null 2>&1; then
+            log_info "SSH agent socket set: $SSH_AUTH_SOCK"
+            return 0
+        fi
+    fi
+
+    # No valid SSH agent socket found
+    log_info "No SSH agent socket found"
+    return 1
 }
 
 ##
@@ -167,16 +188,18 @@ parse_arguments() {
 # Sets SSH_AUTH_SOCK environment variable
 #
 start_ssh_agent() {
-    if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
-        log_info "Starting ssh-agent..."
-        if eval "$(ssh-agent -s)" > /dev/null 2>&1; then
-            log_info "ssh-agent started successfully"
-        else
-            log_error "Failed to start ssh-agent"
-            return 1
-        fi
+    # Try to set up the existing SSH agent socket
+    if setup_ssh_agent_socket; then
+        return 0
+    fi
+
+    # If no socket found, start a new agent
+    log_info "Starting ssh-agent..."
+    if eval "$(ssh-agent -s)" > /dev/null 2>&1; then
+        log_info "ssh-agent started successfully"
     else
-        log_info "ssh-agent already running"
+        log_error "Failed to start ssh-agent"
+        return 1
     fi
 }
 
@@ -245,6 +268,35 @@ load_ssh_keys() {
     else
         log_info "Successfully loaded $keys_added SSH key(s)"
     fi
+}
+
+##
+# Parse command line arguments
+# Arguments:
+#   $@ - All command line arguments
+#
+parse_arguments() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -m|--mute)
+                MUTE=true
+                shift
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -v|--version)
+                version
+                exit 0
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                usage >&2
+                exit 1
+                ;;
+        esac
+    done
 }
 
 ##
